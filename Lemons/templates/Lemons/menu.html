@@ -1,0 +1,68 @@
+{% extends "Lemons/base.html" %}
+
+{% block title %}Menu - Little Lemon{% endblock %}
+
+{% block content %}
+<div class="menu-content">
+    <h2>Our Menu</h2>
+    <div class="menu-category">
+        <h3>Starters</h3>
+        <ul>
+            <li>Hummus with Pita Bread - $8.99</li>
+            <li>Greek Salad - $9.99</li>
+            <li>Stuffed Grape Leaves - $7.99</li>
+            <li>Falafel Plate - $10.99</li>
+        </ul>
+    </div>
+    <div class="menu-category">
+        <h3>Main Courses</h3>
+        <ul>
+            <li>Grilled Salmon - $18.99</li>
+            <li>Chicken Shawarma - $16.99</li>
+            <li>Lamb Kebabs - $19.99</li>
+            <li>Vegetarian Moussaka - $15.99</li>
+        </ul>
+    </div>
+    <div class="menu-category">
+        <h3>Desserts</h3>
+        <ul>
+            <li>Baklava - $6.99</li>
+            <li>Rice Pudding - $5.99</li>
+            <li>Chocolate Cake - $7.99</li>
+            <li>Fresh Fruit Platter - $8.99</li>
+        </ul>
+    </div>
+    <div class="menu-category">
+        <h3>Beverages</h3>
+        <ul>
+            <li>Soft Drinks - $2.99</li>
+            <li>Fresh Juice - $4.99</li>
+            <li>Turkish Coffee - $3.99</li>
+            <li>Mint Tea - $3.49</li>
+        </ul>
+    </div>
+</div>
+<style>
+    .menu-content {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+    .menu-category {
+        margin-bottom: 30px;
+    }
+    .menu-category h3 {
+        color: #2e7d32;
+        border-bottom: 2px solid #4CAF50;
+        padding-bottom: 5px;
+    }
+    .menu-category ul {
+        list-style-type: none;
+        padding: 0;
+    }
+    .menu-category li {
+        padding: 8px 0;
+        border-bottom: 1px solid #eee;
+    }
+</style>
+{% endblock %}

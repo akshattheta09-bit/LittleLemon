@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Reservation</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input[type="text"], input[type="date"], select {
+            padding: 8px;
+            width: 200px;
+            box-sizing: border-box;
+        }
+        .error { color: red; }
+        .success { color: green; }
+        .bookings { margin-top: 30px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Restaurant Reservation</h1>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if success %}
+            <p class="success">{{ success }}</p>
+        {% endif %}
+
+        <form method="post" id="reservationForm">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="first_name">First name:</label>
+                <input type="text" id="first_name" name="first_name" value="{{ first_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reservation_date">Reservation date:</label>
+                <input type="date" id="reservation_date" name="reservation_date" value="{{ reservation_date|date:"Y-m-d" }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="reservation_slot">Reservation slot:</label>
+                <select id="reservation_slot" name="reservation_slot" required>
+                    <option value="">-- Select a time --</option>
+                    <option value="19:00" {% if reservation_slot == "19:00" %}selected{% endif %}>7:00 PM</option>
+                    <option value="19:30" {% if reservation_slot == "19:30" %}selected{% endif %}>7:30 PM</option>
+                    <option value="20:00" {% if reservation_slot == "20:00" %}selected{% endif %}>8:00 PM</option>
+                    <option value="20:30" {% if reservation_slot == "20:30" %}selected{% endif %}>8:30 PM</option>
+                    <option value="21:00" {% if reservation_slot == "21:00" %}selected{% endif %}>9:00 PM</option>
+                    <option value="21:30" {% if reservation_slot == "21:30" %}selected{% endif %}>9:30 PM</option>
+                </select>
+            </div>
+
+            <button type="submit">Make Reservation</button>
+        </form>
+
+        <div class="bookings">
+            <h2>Bookings for {{ selected_date|date:"F j, Y" }}</h2>
+            {% if reservations %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>First Name</th>
+                            <th>Reservation Slot</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for reservation in reservations %}
+                            <tr>
+                                <td>{{ reservation.first_name }}</td>
+                                <td>{{ reservation.get_reservation_slot_display }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p>No Booking</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        function formatDateLabel(dateValue) {
+            const parsedDate = new Date(dateValue + 'T00:00:00');
+            if (Number.isNaN(parsedDate.getTime())) {
+                return dateValue;
+            }
+
+            return parsedDate.toLocaleDateString('en-US', {
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function updateBookings(date) {
+            fetch('/reservations/api/?date=' + date)
+                .then(response => response.json())
+                .then(data => {
+                    let tbody = document.querySelector('.bookings tbody');
+                    if (!tbody) {
+                        const table = document.createElement('table');
+                        table.innerHTML = `
+                            <thead>
+                                <tr>
+                                    <th>First Name</th>
+                                    <th>Reservation Slot</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        `;
+                        document.querySelector('.bookings').innerHTML = `<h2>Bookings for ${formatDateLabel(date)}</h2>`;
+                        document.querySelector('.bookings').appendChild(table);
+                        tbody = table.querySelector('tbody');
+                    }
+
+                    tbody.innerHTML = '';
+
+                    if (data.length === 0) {
+                        const message = document.createElement('p');
+                        message.textContent = 'No Booking';
+                        document.querySelector('.bookings').innerHTML = `<h2>Bookings for ${formatDateLabel(date)}</h2>`;
+                        document.querySelector('.bookings').appendChild(message);
+                    } else {
+                        data.forEach(booking => {
+                            const tr = document.createElement('tr');
+                            const td1 = document.createElement('td');
+                            td1.textContent = booking.first_name;
+                            const td2 = document.createElement('td');
+                            const slotMap = {
+                                '19:00': '7:00 PM',
+                                '19:30': '7:30 PM',
+                                '20:00': '8:00 PM',
+                                '20:30': '8:30 PM',
+                                '21:00': '9:00 PM',
+                                '21:30': '9:30 PM'
+                            };
+                            td2.textContent = slotMap[booking.reservation_slot] || booking.reservation_slot;
+                            tr.appendChild(td1);
+                            tr.appendChild(td2);
+                            tbody.appendChild(tr);
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching bookings:', error);
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateInput = document.getElementById('reservation_date');
+            const bookingsHeading = document.querySelector('.bookings h2');
+
+            dateInput.addEventListener('change', function() {
+                const selectedDate = this.value;
+                bookingsHeading.textContent = `Bookings for ${formatDateLabel(selectedDate)}`;
+                fetch('/reservations/api/?date=' + selectedDate)
+                    .then(response => response.json())
+                    .then(data => {
+                        const bookedSlots = data.map(booking => booking.reservation_slot);
+                        const slotSelect = document.getElementById('reservation_slot');
+                        const options = slotSelect.options;
+
+                        for (let i = 0; i < options.length; i++) {
+                            const value = options[i].value;
+                            options[i].disabled = Boolean(value && bookedSlots.includes(value));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching bookings:', error);
+                    });
+            });
+
+            fetch('/reservations/api/?date=' + dateInput.value)
+                .then(response => response.json())
+                .then(data => {
+                    const bookedSlots = data.map(booking => booking.reservation_slot);
+                    const slotSelect = document.getElementById('reservation_slot');
+                    const options = slotSelect.options;
+
+                    for (let i = 0; i < options.length; i++) {
+                        const value = options[i].value;
+                        options[i].disabled = Boolean(value && bookedSlots.includes(value));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching bookings:', error);
+                });
+        });
+    </script>
+</body>
+</html>
