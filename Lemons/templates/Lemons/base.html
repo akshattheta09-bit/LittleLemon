@@ -4,31 +4,67 @@
     <meta charset="UTF-8">
     <title>{% block title %}Little Lemon{% endblock %}</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
-        header { background-color: #4CAF50; color: white; padding: 20px; text-align: center; }
-        nav { background-color: #333; overflow: hidden; }
-        nav a { float: left; display: block; color: white; text-align: center; padding: 14px 16px; text-decoration: none; }
-        nav a:hover { background-color: #ddd; color: black; }
-        .container { padding: 20px; }
-        footer { background-color: #4CAF50; color: white; text-align: center; padding: 10px; position: fixed; bottom: 0; width: 100%; }
+        :root{
+            --accent:#355045;
+            --accent-light:#4b6a60;
+            --muted:#f1f3f2;
+            --text:#222;
+        }
+        html,body{height:100%;}
+        body { font-family: 'Georgia', 'Times New Roman', serif; margin: 0; padding: 0; color:var(--text); }
+        .site-header{background:#fff; padding:28px 0; border-bottom:1px solid #e6e6e6}
+        .header-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px}
+        .logo {display:flex;align-items:center;gap:14px}
+        .logo-icon{width:56px;height:56px;border-radius:6px;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:24px}
+        .site-title{font-size:28px;letter-spacing:6px;color:var(--accent);font-weight:700}
+
+        .main-nav{background:var(--accent);}
+        .main-nav .nav-inner{max-width:1100px;margin:0 auto;padding:10px 20px;display:flex;gap:18px}
+        .main-nav a{color:#fff;text-decoration:none;padding:10px 14px;font-weight:600}
+        .main-nav a:hover{background:var(--accent-light);border-radius:4px}
+
+        .container{max-width:1100px;margin:30px auto;padding:0 20px}
+
+        footer.site-footer{background:var(--muted);border-top:1px solid #e6e6e6;padding:22px 0;margin-top:40px}
+        .footer-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 20px;color:#666}
+
+        @media(max-width:720px){
+            .header-inner,.footer-inner,.main-nav .nav-inner{padding:0 12px}
+            .site-title{font-size:20px}
+            .logo-icon{width:44px;height:44px}
+        }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Little Lemon Restaurant</h1>
+    <header class="site-header">
+        <div class="header-inner">
+            <div class="logo">
+                <div class="logo-icon">🍋</div>
+                <div class="site-title">LITTLE LEMON</div>
+            </div>
+            <div class="brand-right" aria-hidden="true"></div>
+        </div>
     </header>
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'about' %}">About</a>
-        <a href="{% url 'menu' %}">Menu</a>
-        <a href="{% url 'reservation_page' %}">Reservation</a>
-    </nav>
+    <div class="main-nav">
+        <div class="nav-inner">
+            <a href="{% url 'home' %}">Home</a>
+            <a href="{% url 'about' %}">About</a>
+            <a href="{% url 'menu' %}">Menu</a>
+            <a href="{% url 'reservation_page' %}">Book</a>
+            <a href="{% url 'reservation_page' %}">Reservations</a>
+        </div>
+    </div>
+
     <div class="container">
         {% block content %}
         {% endblock %}
     </div>
-    <footer>
-        <p>&copy; 2026 Little Lemon Restaurant</p>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="logo-small">🍋</div>
+            <div class="copyright">Copyright Little Lemon</div>
+        </div>
     </footer>
 </body>
 </html>
