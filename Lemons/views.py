@@ -33,16 +33,24 @@ def reservation_page(request):
             })
 
         # Create the reservation
-        Reservation.objects.create(
+        reservation = Reservation.objects.create(
             first_name=first_name,
             reservation_date=reservation_date,
             reservation_slot=reservation_slot
         )
 
-        # After successful booking, we can redirect or show a success message.
-        # For simplicity, we'll just show a success message and clear the form.
+        # After successful booking, show success message with JSON data
+        reservation_data = {
+            'id': reservation.id,
+            'first_name': reservation.first_name,
+            'reservation_date': str(reservation.reservation_date),
+            'reservation_slot': reservation.reservation_slot
+        }
+        
         return render(request, 'Lemons/reservation.html', {
             'success': 'Reservation made successfully!',
+            'reservation_data': reservation_data,
+            'reservation_json': json.dumps(reservation_data, indent=2),
             'first_name': '',
             'reservation_date': timezone.now().date(),
             'reservation_slot': '',
